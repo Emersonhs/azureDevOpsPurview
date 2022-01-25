@@ -1,0 +1,29 @@
+{  
+    "qualifiedName": "Test3@Glossary",    
+    "anchor": {
+        "glossaryGuid": "20d95fca-049b-4b30-88b4-885aebfb4174",
+        "relationGuid": "6b3ac50b-38e4-40e7-80c5-812a903725d5"
+  },
+  "resources": [
+    {
+      "displayName": "TesteUpdate",
+      "url": "Example Url"
+    }
+  ],
+  "seeAlso": [
+    {
+      "termGuid": "34765f2e-4492-41f3-818b-f735b99acc0b"
+    },
+    {
+      "termGuid": "34765f2e-4492-41f3-818b-f735b99acc0b"
+    }
+  ],
+  "synonyms": [
+    {
+      "termGuid": "34765f2e-4492-41f3-818b-f735b99acc0b"
+    },
+    {
+      "termGuid": "34765f2e-4492-41f3-818b-f735b99acc0b"
+    }
+  ]
+}

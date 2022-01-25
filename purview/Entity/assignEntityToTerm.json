@@ -1,0 +1,11 @@
+{
+  "guid": "#{AzGuidEntity}#",
+  "relationshipAttributes": {
+    "attributes": {
+      "expression": "cement to term",
+      "confidence": 100,
+      "description": "Cement Description",
+      "source": "ExampleSource"
+      }
+  }
+}

@@ -1,0 +1,74 @@
+parameters:
+  - name: "clientId"
+    type: string
+  - name: "tenantId"
+    type: string
+  - name: "clientSecret"
+    type: string  
+  - name: "resource"
+    type: string  
+    
+steps:
+  - task: DownloadBuildArtifacts@1
+    inputs:
+      buildType: 'current'
+      downloadType: 'single'
+      artifactName: 'drop'
+      downloadPath: '$(System.ArtifactsDirectory)'
+    
+  - template: ../modulos/modulos-get-token-azure.yml
+    parameters: 
+            clientId: ${{parameters.clientId}}
+            tenantId: ${{parameters.tenantId}}
+            clientSecret: ${{parameters.clientSecret}}
+            resource: ${{parameters.resource}}
+
+  - template: ../modulos/entity/modulos-createOrUpdateEntity.yml
+    parameters:
+             sourceFolder: $env:sourceCreateOrUpdateEntity
+             uriAPI: $env:uriAPICreateOrUpdateEntity
+             endPoint: $env:endpoint
+  - task: CmdLine@2
+    inputs:
+      script: |
+        dir
+        cd purview
+        dir
+      workingDirectory: '$(System.ArtifactsDirectory)'
+  - task: replacetokens@4
+    inputs:
+      rootDirectory: '$(System.ArtifactsDirectory)\purview'
+      targetFiles: 'AssignEntityToTerm.json'
+      encoding: 'auto'
+      tokenPattern: 'default'
+      writeBOM: true
+      verbosity: 'detailed'
+      actionOnMissing: 'fail'
+      keepToken: false
+      actionOnNoFiles: 'continue'
+      enableTransforms: false
+      useLegacyPattern: false
+      enableTelemetry: true
+  
+  - task: PowerShell@2
+    inputs:
+      targetType: 'inline'
+      script: |
+        Write-Host "AzGuidEntity:" $env:AzGuidEntity
+        Write-Host "AzGuidTerm:" $env:AzGuidTerm
+        Write-Host "AzToken:" $env:AzToken
+        Write-Host "----------------------"
+        $Path = "$(System.ArtifactsDirectory)\$env:sourceAssgnEntityToTerm"
+        Write-Host "Path:" $Path
+        $Body = Get-Content -Raw -Path $Path | ConvertFrom-Json
+        Write-Host "Body:" $Body
+        $BodyJson = $Body | ConvertTo-Json -AsArray
+        Write-Host "BodyJson:" $BodyJson
+    
+  - template: ../modulos/entity/modulos-assigEntityToTerm.yml
+    parameters:
+             sourceFolder: $env:sourceAssgnEntityToTerm
+             uriAPI: $env:uriAPIAssgnEntityToTerm
+             endPoint: $env:endpoint
+
+

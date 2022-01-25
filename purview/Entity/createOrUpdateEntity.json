@@ -1,0 +1,17 @@
+{
+  "referredEntities": {},
+  "entity": {
+    "typeName": "azure_storage_account",
+    "attributes": {
+      "owner": "ExampleOwner",
+      "modifiedTime": 0,
+      "createTime": 0,
+      "qualifiedName": "https://dlsland001.dfs.core.windows.net/land/cement29.csv",
+      "name": "cementdata",
+      "description": "UpDate Entity via Pipeline",
+      "publicAccessLevel": null
+    },
+    "status": "ACTIVE",    
+    "version": 0
+  }
+}

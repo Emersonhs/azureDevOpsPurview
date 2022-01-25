@@ -1,0 +1,53 @@
+### Pipeline to deploy notebooks to a Databricks Workspace
+
+# Configuration of triggers, the pipeline should be triggered each time there is a change on the folder 
+#  "Notebooks/" on the main branch
+trigger:
+  batch: true
+  branches:
+    include: 
+    - 'main'
+  paths:
+    include: 
+    - 'purview/*'
+
+# Definition of the Azure DevOps agents there will be used to execute the pipeline
+pool:
+  vmImage: windows-latest
+
+# The 'stages' list define the stages that will be executed in this pipeline
+stages:
+  # CI Statge: It uses the build-purview-artifact.yml template to archive the json code
+  - stage: Build
+    displayName: CI Azure Purview - Term
+    jobs:
+    - job:
+      steps:
+        - checkout: self
+          persistCredentials: true
+          clean: true
+          
+        - template: ../.templates/build/build-purview-artifact-term.yml
+          parameters: 
+            localRootFolder: purview
+
+  - stage: Deploy
+    displayName: CD Azure Purview - Term
+    jobs:
+      - deployment: "DeployPurviewDev"
+        environment: "Purview - DEV"
+        variables:
+          - group: "Purview Term - DEV"
+          - group: "DataOps"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: ../.templates/deploy/deploy-purview-term.yml
+                  parameters:
+                    clientId: "$(appId)"
+                    tenantId: "$(tenantId)"
+                    clientSecret: "$(appSecret)"                              
+                    resource: "$(resource)"
+
+

@@ -1,0 +1,43 @@
+# Module that creates a Term
+
+# Required parameters to execute this template
+parameters:
+  - name: "sourceFolder"
+    type: string
+  - name: "uriAPI"
+    type: string  
+  - name: "endPoint"
+    type: string
+
+# The 'steps' list define the tasks that will be executed in this template
+steps:
+  # Executes REST API call to create a term
+  - task: PowerShell@2
+    displayName: Create Term
+    inputs:
+      targetType: 'inline'
+      script: |
+        try{
+        $Body = Get-Content -Raw -Path $(System.ArtifactsDirectory)/${{parameters.sourceFolder}} | ConvertFrom-Json
+        Write-Host $Body
+        $URL = "${{parameters.endPoint}}"+"${{parameters.uriAPI}}"
+        Write-Host $URL
+        $BodyJson = $Body | ConvertTo-Json
+        Write-Host "AzToken:" $env:AzToken
+        $Return = Invoke-RestMethod -Uri "$URL" -Method "POST" -Headers @{Authorization = $env:AzToken} -ContentType "application/json" -Body $BodyJson -Verbose
+        Write-Host $Return 
+        Write-Host $Return.guid
+        $GuidAz = $Return.guid
+        Write-Host $GuidAz
+        Write-Host "##vso[task.setvariable variable=AzGuidTerm;]$GuidAz"
+        Write-Host "AzGuidTerm: " $(AzGuidTerm)
+        }catch{
+            Write-Output "Fail to backup model"
+            Write-Output "Exception" $_.Exception
+            Write-Output "Exception.Message" $_.Exception.Message
+            Write-Output "Exception.StackTrace" $_.Exception.StackTrace
+            exit 1
+        }
+        
+         
+       

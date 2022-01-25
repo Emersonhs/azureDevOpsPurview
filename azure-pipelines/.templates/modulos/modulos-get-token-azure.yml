@@ -1,0 +1,35 @@
+# Module gets a berear token to make API calls
+
+# Required parameters to execute this template
+parameters:
+  - name: "clientId"
+    type: string
+  - name: "tenantId"
+    type: string
+  - name: "clientSecret"
+    type: string  
+  - name: "resource"
+    type: string
+ 
+# The 'steps' list define the tasks that will be executed in this template
+steps:
+  # Executes REST API call to get a Berear Token
+  - task: PowerShell@2
+    displayName: "Get Token Azure DevOps"
+    inputs:
+      targetType: 'inline'
+      script: |
+        try{
+          $Auth = Invoke-RestMethod -Uri "https://login.microsoftonline.com/${{parameters.tenantId}}/oauth2/token" -Method Post -Headers @{"Content-Type" = "application/x-www-form-urlencoded"; "Keep-Alive" = "true"} -Body @{"grant_type" = "client_credentials"; "client_id" = "${{parameters.clientId}}"; "client_secret" = "${{parameters.clientSecret}}"; "resource" = "${{parameters.resource}}"} -Verbose 
+          $token =  "Bearer " + $Auth.access_token
+          Write-Host  $token
+          Write-Host "##vso[task.setvariable variable=AzToken;]$token"
+          Write-Host "AzToken:" $env:AzToken
+        }
+        catch {
+            Write-Output "Fail to backup model"
+            Write-Output "Exception" $_.Exception
+            Write-Output "Exception.Message" $_.Exception.Message
+            Write-Output "Exception.StackTrace" $_.Exception.StackTrace
+            exit 1
+        }

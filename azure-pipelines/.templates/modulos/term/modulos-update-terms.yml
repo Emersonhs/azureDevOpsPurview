@@ -1,0 +1,39 @@
+# Module that updates a term
+
+# Required parameters to execute this template
+parameters:
+  - name: "sourceFolder"
+    type: string
+  - name: "uriAPI"
+    type: string  
+  - name: "method"
+    type: string
+  - name: "termGuid"
+    type: string
+  - name: "endPoint"
+    type: string
+
+# The 'steps' list define the tasks that will be executed in this template
+steps:
+  # Executes REST API call to update a Term
+  - task: PowerShell@2
+    displayName: Update Term
+    inputs:
+      targetType: 'inline'
+      script: |
+        try{
+          $Body = Get-Content -Raw -Path $(System.ArtifactsDirectory)/${{parameters.sourceFolder}} | ConvertFrom-Json
+          Write-Host $Body
+          $BodyJson = $Body | ConvertTo-Json
+          $URL = "${{parameters.endPoint}}"+"${{parameters.uriAPI}}" + "${{parameters.termGuid}}"
+          Write-Host $URL
+          Invoke-RestMethod -Uri "$URL" -Method "PUT" -Headers @{Authorization = $env:AzToken} -ContentType "application/json" -Body $BodyJson -Verbose
+        }
+        catch {
+            Write-Output "Fail to backup model"
+            Write-Output "Exception" $_.Exception
+            Write-Output "Exception.Message" $_.Exception.Message
+            Write-Output "Exception.StackTrace" $_.Exception.StackTrace
+            exit 1
+        }
+      pwsh: true

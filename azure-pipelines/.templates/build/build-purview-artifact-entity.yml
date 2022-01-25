@@ -1,0 +1,22 @@
+## Template that defines the CI process
+
+# Required parameters to execute this template
+parameters:
+  - name: "localRootFolder"
+    type: string
+
+# The 'steps' list define the tasks that will be executed in this template
+steps:
+  # Stores the code as an artifact to be used by the CD pipelines
+  - task: CopyFiles@2
+    displayName: 'Copy Files purview'
+    inputs:
+      SourceFolder: 'purview/entity'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)/purview/entity'
+
+  # Publish artifacts
+  - task: PublishPipelineArtifact@1
+    inputs:
+      targetPath: '$(System.ArtifactsDirectory)'
+      artifact: 'drop'
+      publishLocation: 'pipeline'   

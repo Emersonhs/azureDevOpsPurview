@@ -1,0 +1,45 @@
+# Module that creates or updates an entity
+
+# Required parameters to execute this template
+parameters:
+  - name: "sourceFolder"
+    type: string
+  - name: "uriAPI"
+    type: string
+  - name: "endPoint"
+    type: string
+
+# The 'steps' list define the tasks that will be executed in this template
+steps:
+  # Executes REST API call to Create Or UpDate an Entity
+  - task: PowerShell@2
+    displayName: Create Or Update an Entity
+    inputs:
+      targetType: 'inline'
+      script: |
+        try{
+          
+          $Path = "$(System.ArtifactsDirectory)\${{parameters.sourceFolder}}"
+          Write-Host "Path:" $Path
+          $Body = Get-Content -Raw -Path $Path | ConvertFrom-Json
+          Write-Host "Body:" $Body
+          $BodyJson = $Body | ConvertTo-Json
+          $URL = "${{parameters.endPoint}}"+"${{parameters.uriAPI}}"
+          Write-Host "URL" "$URL"
+          $Return = Invoke-RestMethod -Uri "$URL" -Method "POST" -Headers @{Authorization = $env:AzToken} -ContentType "application/json" -Body $BodyJson -Verbose
+          Write-Host $Return 
+          Write-Host $Return.mutatedEntities.CREATE.guid
+          $GuidReturn = $Return.mutatedEntities.CREATE.guid
+          Write-Host $GuidReturn
+          Write-Host "##vso[task.setvariable variable=AzGuidEntity;]$GuidReturn"
+        }
+        catch {
+            Write-Output "Fail to backup model"
+            Write-Output "Exception" $_.Exception
+            Write-Output "Exception.Message" $_.Exception.Message
+            Write-Output "Exception.StackTrace" $_.Exception.StackTrace
+            exit 1
+        }
+      pwsh: true
+         
+       
